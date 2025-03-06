@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <link rel="icon" type="image/x-icon" href="favicon.ico">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reproductor de Video</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 20px;
+        }
+        .video-container {
+            max-width: 800px;
+            margin: auto;
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+        }
+        video {
+            	width: 100%;
+		border-radius: 10px;
+        }
+ 	button {
+            padding: 10px 20px;
+            font-size: 16px;
+            margin: 5px;
+            cursor: pointer;
+        }
+
+    </style>
+</head>
+<body>
+	<video id="video" playsinline>
+            <source src="https://firebasestorage.googleapis.com/v0/b/multimedia-4a03f.appspot.com/o/scaperoom.mp4?alt=media" type="video/mp4">
+            Tu navegador no soporta la reproducción de videos.
+        </video>
+    
+	 <!-- Botones para enviar comandos -->
+    <div>
+        <button id="playButton" onclick="sendCommand('Reproducir')">Reproducir</button>
+        <button id="playButton" onclick="sendCommand('Pausar')">Pausar</button>
+     <!--   <button onclick="sendCommand('Bloquear')">Bloquear Video</button>  -->
+     <!--   <button onclick="sendCommand('Desbloquear')">Desbloquear Video</button>  -->
+    </div>
+
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
+    <script src="script.js"></script>
+
+    <script>
+        // Obtener referencia al video
+        var video = document.getElementById('video');
+
+        // Función para enviar comandos a Firebase
+        function sendCommand(action) {
+            firebase.database().ref('Control_Video').set(action);
+        }
+
+        // Escuchar cambios en la base de datos en tiempo real
+        firebase.database().ref('Control_Video').on('value', function(snapshot) {
+            var command = snapshot.val();
+            if (command === 'Reproducir'|| command === '"Reproducir"') {
+                video.play();
+            } else if (command === 'Pausar'|| command === '"Pausar"') {
+                video.pause();
+            } else if (command === 'Reiniciar'|| command === '"Reiniciar"') {
+                video.currentTime = 0;  // Reiniciar el video
+            } else if (command === '"Bloquear"') {
+                document.body.style.pointerEvents = 'none';  // Bloquea la interacción con el video
+            } else if (command === '"Desbloquear"') {
+                document.body.style.pointerEvents = 'auto';  // Desbloquea la interacción
+            }
+        });
+    </script>
+</body>
+</html>
